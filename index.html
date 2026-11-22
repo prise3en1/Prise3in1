@@ -153,9 +153,16 @@ $("#qty").onchange=total;
 $("#lang").onclick=()=>{L=L==="ar"?"fr":"ar";render()};
 // Galerie
 const big=$("#big"),th=$("#thumbs");
-CONFIG.images.forEach((src,i)=>{const im=new Image();im.src=src;im.alt="";if(!i)im.className="on";
-  im.onclick=()=>{big.src=src;[...th.children].forEach(x=>x.classList.remove("on"));im.classList.add("on")};th.appendChild(im)});
-big.src=CONFIG.images[0];
+function gallery(list){
+  th.innerHTML="";
+  list.forEach((src,i)=>{const im=new Image();im.src=src;im.alt="";if(!i)im.className="on";
+    im.onclick=()=>{big.src=src;[...th.children].forEach(x=>x.classList.remove("on"));im.classList.add("on")};th.appendChild(im)});
+  big.src=list[0];
+}
+gallery(CONFIG.images);
+if(CONFIG.supabaseUrl)fetch(CONFIG.supabaseUrl+"/rest/v1/product_images?select=url&order=position.asc,id.asc",
+  {headers:{apikey:CONFIG.supabaseKey,Authorization:"Bearer "+CONFIG.supabaseKey}})
+  .then(r=>r.ok?r.json():[]).then(rows=>{if(rows.length)gallery(rows.map(x=>x.url))}).catch(()=>{});
 // Commande
 $("#form").onsubmit=async e=>{
   e.preventDefault();
