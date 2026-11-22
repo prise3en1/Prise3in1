@@ -11,6 +11,10 @@ button{background:#e8890c;color:#fff;border:0;font-weight:bold;cursor:pointer}
 .w{overflow-x:auto}table{border-collapse:collapse;width:100%;background:#fffaf0;font-size:14px}
 th{background:#e8890c;color:#fff}td,th{padding:8px;border-bottom:1px solid #e2d3b5;text-align:start;white-space:nowrap}
 .Confirmed{background:#c6efce}.Waiting{background:#ffeb9c}.False\ order{background:#ffc7ce}.On\ check{background:#bdd7ee}.Double\ order{background:#e4c8f0}
+.imgs{margin-top:28px;background:#fffaf0;border:1px solid #e2d3b5;border-radius:12px;padding:16px}
+.grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.it{width:130px;text-align:center}
+.it img{width:130px;height:130px;object-fit:cover;border-radius:10px;border:1px solid #d6c4a0}
+.it button{padding:4px 8px;margin:3px 1px;font-size:13px}.it .del{background:#c0392b}
 </style></head><body>
 <form id="login"><h2>Admin</h2>
  <input id="em" name="email" type="email" placeholder="Email" autocomplete="username" required>
@@ -20,6 +24,10 @@ th{background:#e8890c;color:#fff}td,th{padding:8px;border-bottom:1px solid #e2d3
 <div id="app">
  <div class="bar"><b id="cnt"></b><select id="flt"><option value="">Tous</option><option>Confirmed</option><option>Waiting</option><option>False order</option><option>On check</option><option>Double order</option></select><button id="rf">Actualiser</button><button id="out">Déconnexion</button></div>
  <div class="w"><table><thead><tr><th>Date</th><th>Nom</th><th>Téléphone</th><th>Wilaya</th><th>Adresse</th><th>Qté</th><th>Livraison</th><th>Prix liv.</th><th>Total</th><th>Statut</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="imgs"><h3 style="margin:0 0 8px">Images du produit (page de vente)</h3>
+ <input type="file" id="file" accept="image/*" multiple> <button id="up">Ajouter</button> <small id="imsg"></small>
+ <p style="font-size:13px;color:#6b6559;margin:8px 0 0">La première image est l'image principale. Utilisez ◀ ▶ pour changer l'ordre.</p>
+ <div class="grid" id="grid"></div></div>
 </div>
 <script>
 const SUPABASE_URL="https://uuqrprzkinlkxovzfjsm.supabase.co", SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1cXJwcnpraW5sa3hvdnpmanNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMDA0MTMsImV4cCI6MjExMDg3NjQxM30.fILi0KaRknHN7EQnV2Ucool6rvgBfd6d5v-pO899Als";   // mêmes valeurs que index.html
@@ -41,7 +49,27 @@ async function load(){
   <td><select class="${o.status}" data-id="${o.id}">${ST.map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("");
 }
 $("#rows").onchange=async e=>{const s=e.target;const {error}=await sb.from("orders").update({status:s.value}).eq("id",s.dataset.id);if(error)alert(error.message);else s.className=s.value};
-async function show(){const {data}=await sb.auth.getSession();const ok=!!data.session;$("#login").style.display=ok?"none":"grid";$("#app").style.display=ok?"block":"none";if(ok)load()}
+async function show(){const {data}=await sb.auth.getSession();const ok=!!data.session;$("#login").style.display=ok?"none":"grid";$("#app").style.display=ok?"block":"none";if(ok){load();loadImgs()}}
+async function shrink(f){const bm=await createImageBitmap(f);const k=Math.min(1,1200/Math.max(bm.width,bm.height));
+  const c=document.createElement("canvas");c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext("2d").drawImage(bm,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(r,"image/jpeg",.85))}
+async function loadImgs(){const {data,error}=await sb.from("product_images").select("*").order("position").order("id");
+  if(error){$("#imsg").textContent=error.message;return}
+  $("#grid").innerHTML=data.map((x,i)=>`<div class="it"><img src="${esc(x.url)}"><div><button data-a="l" data-i="${i}">◀</button><button data-a="r" data-i="${i}">▶</button><button class="del" data-a="d" data-i="${i}">🗑</button></div></div>`).join("")||"<small>Aucune image — la page utilise img/1.jpg, img/2.jpg…</small>";
+  window._imgs=data}
+$("#up").onclick=async()=>{const fs=[...$("#file").files];if(!fs.length)return;$("#up").disabled=true;let pos=(window._imgs||[]).length;
+  for(const f of fs){$("#imsg").textContent="Envoi de "+f.name+"…";try{
+    const blob=await shrink(f),path=Date.now()+"-"+Math.random().toString(36).slice(2,8)+".jpg";
+    const u=await sb.storage.from("product-images").upload(path,blob,{contentType:"image/jpeg"});if(u.error)throw u.error;
+    const url=sb.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+    const i=await sb.from("product_images").insert({url,path,position:pos++});if(i.error)throw i.error;
+  }catch(e){$("#imsg").textContent="Erreur: "+e.message;$("#up").disabled=false;return}}
+  $("#imsg").textContent="✅ Terminé";$("#file").value="";$("#up").disabled=false;loadImgs()};
+$("#grid").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const L=window._imgs,i=+b.dataset.i,a=b.dataset.a;
+  if(a==="d"){if(!confirm("Supprimer cette image ?"))return;await sb.storage.from("product-images").remove([L[i].path]);await sb.from("product_images").delete().eq("id",L[i].id)}
+  else{const j=a==="l"?i-1:i+1;if(j<0||j>=L.length)return;const order=L.map(x=>x.id);[order[i],order[j]]=[order[j],order[i]];
+    await Promise.all(order.map((id,p)=>sb.from("product_images").update({position:p}).eq("id",id)))}
+  loadImgs()};
 $("#login").onsubmit=async e=>{e.preventDefault();localStorage.setItem("rm",$("#rm").checked?"1":"0");if($("#rm").checked)localStorage.setItem("rm_email",$("#em").value);else localStorage.removeItem("rm_email");const {error}=await sb.auth.signInWithPassword({email:$("#em").value,password:$("#pw").value});if(error)$("#err").textContent=error.message;else show()};
 $("#out").onclick=async()=>{await sb.auth.signOut();show()};$("#rf").onclick=load;$("#flt").onchange=load;show();
 </script></body></html>
