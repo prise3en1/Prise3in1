@@ -84,7 +84,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px 0 90px}
  <form id="form">
   <label data-t="lName"></label><input name="name" required>
   <label data-t="lPhone"></label><input name="phone" type="tel" required pattern="[0-9+ ]{9,15}">
-  <label data-t="lWilaya"></label><input name="wilaya" required>
+  <label data-t="lWilaya"></label><select name="wilaya" id="wil"></select>
   <label data-t="lAddr"></label><input name="address" required>
   <label data-t="lDelivery"></label><select name="delivery" id="dlv"></select>
   <label data-t="lQty"></label>
@@ -130,6 +130,10 @@ const TXT = {
 };
 let L="ar";
 const $=s=>document.querySelector(s);
+const WIL=[["Adrar",1300,900],["Chlef",600,450],["Laghouat",950,600],["Oum El Bouaghi",800,450],["Batna",800,450],["Bejaia",800,450],["Biskra",950,600],["Bechar",1100,750],["Blida",700,450],["Bouira",750,450],["Tamanrasset",1550,1100],["Tebessa",900,500],["Tlemcen",850,500],["Tiaret",750,450],["Tizi Ouzou",750,450],["Alger",600,400],["Djelfa",900,600],["Jijel",800,450],["Sétif",800,450],["Saida",800,500],["Skikda",800,450],["Sidi Bel Abbès",750,450],["Annaba",800,450],["Guelma",800,450],["Constantine",800,450],["Medea",700,450],["Mostaganem",750,450],["M'Sila",850,500],["Mascara",700,450],["Ouargla",950,600],["Oran",700,450],["El Bayadh",1000,750],["Illizi",1550,1150],["Bordj Bou Arreridj",800,450],["Boumerdes",750,450],["El Tarf",850,500],["Tindouf",1300,800],["Tissemsilt",700,450],["El Oued",1000,600],["Khenchela",800,500],["Souk Ahras",800,500],["Tipaza",700,450],["Mila",800,450],["Ain Defla",450,300],["Naama",1000,600],["Ain Temouchent",750,450],["Ghardaia",1000,600],["Relizane",750,450],["Timimoun",1350,900],["Bordj Badji Mokhtar",0,0],["Ouled Djellal",900,550],["Béni Abbès",1100,900],["In Salah",1550,1100],["In Guezzam",0,0],["Touggourt",950,600],["Djanet",2200,1600],["M'Ghair",950,600],["Meniaa",950,600]]; // [wilaya, domicile, stop desk] DA — 0 = non desservie
+$("#wil").innerHTML=WIL.map((w,i)=>`<option value="${w[0]}">${String(i+1).padStart(2,"0")} - ${w[0]}</option>`).join("");
+$("#wil").value="Alger";
+const dp=()=>WIL[$("#wil").selectedIndex][$("#dlv").selectedIndex+1];
 function render(){
   const t=TXT[L],c=CONFIG.currency[L];
   document.documentElement.lang=L;document.documentElement.dir=L==="ar"?"rtl":"ltr";
@@ -138,12 +142,13 @@ function render(){
   $("#price").textContent=CONFIG.price+" "+c;$("#old").textContent=CONFIG.oldPrice+" "+c;
   $("#lang").textContent=L==="ar"?"Français":"العربية";
   const dl=$("#dlv"),k=dl.selectedIndex<0?0:dl.selectedIndex;
-  dl.innerHTML=CONFIG.delivery.map(o=>`<option>${o[L]} — ${o.price} ${c}</option>`).join("");dl.selectedIndex=k;
+  const w=WIL[$("#wil").selectedIndex];
+  dl.innerHTML=CONFIG.delivery.map((o,i)=>`<option>${o[L]} — ${w[i+1]?w[i+1]+" "+c:(L==="ar"?"غير متوفر":"Indisponible")}</option>`).join("");dl.selectedIndex=k;
   total();
 }
-function calc(){return CONFIG.price*$("#qty").value+CONFIG.delivery[$("#dlv").selectedIndex].price}
+function calc(){return CONFIG.price*$("#qty").value+dp()}
 function total(){$("#tot").textContent=calc()+" "+CONFIG.currency[L]}
-$("#dlv").onchange=total;
+$("#dlv").onchange=total;$("#wil").onchange=render;
 $("#qty").onchange=total;
 $("#lang").onclick=()=>{L=L==="ar"?"fr":"ar";render()};
 // Galerie
@@ -155,8 +160,9 @@ big.src=CONFIG.images[0];
 $("#form").onsubmit=async e=>{
   e.preventDefault();
   const f=Object.fromEntries(new FormData(e.target)),o=CONFIG.delivery[$("#dlv").selectedIndex];
+  if(!dp()){alert(L==="ar"?"هذا النوع من التوصيل غير متوفر لولايتك":"Ce type de livraison n'est pas disponible pour votre wilaya.");return}
   const d={name:f.name,phone:f.phone,wilaya:f.wilaya,address:f.address,qty:+f.qty,
-           delivery:o.fr,delivery_price:o.price,total:calc()};
+           delivery:o.fr,delivery_price:dp(),total:calc()};
   const btn=e.target.querySelector("button");btn.disabled=true;
   try{
     if(CONFIG.supabaseUrl){
