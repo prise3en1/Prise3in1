@@ -1,182 +1,40 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoltaTri 3×1</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin – Commandes</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--bg:#f5ecdc;--card:#fffaf0;--txt:#2b2a33;--mut:#6b6559;--acc:#e8890c;--acc2:#1f9d6b}
-*{box-sizing:border-box;margin:0}
-body{font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7}
-.wrap{max-width:960px;margin:auto;padding:0 18px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
-.logo{font-weight:900;font-size:22px;color:var(--acc)}
-.lang{background:none;border:1px solid var(--mut);color:var(--txt);padding:4px 14px;border-radius:20px;cursor:pointer;font-family:inherit}
-.hero{display:grid;gap:28px;padding:20px 0 40px}
-@media(min-width:800px){.hero{grid-template-columns:1fr 1fr;align-items:center}}
-h1{font-size:clamp(28px,6vw,46px);line-height:1.25;font-weight:900}
-h1 span{color:var(--acc)}
-.sub{color:var(--mut);margin:12px 0}
-.badge{display:inline-block;background:var(--acc2);color:#fff;font-weight:700;padding:2px 12px;border-radius:20px;font-size:14px}
-.price{font-size:34px;font-weight:900;color:var(--acc);margin:10px 0}
-.price s{font-size:20px;color:var(--mut);margin-inline-start:10px}
-.btn{display:inline-block;background:var(--acc);color:#fff;font-weight:900;font-size:18px;border:0;padding:14px 32px;border-radius:12px;cursor:pointer;text-decoration:none;font-family:inherit;box-shadow:0 0 24px #e8890c55;animation:pulse 2s infinite}
-@keyframes pulse{50%{box-shadow:0 0 38px #e8890caa}}
-.gallery .main{aspect-ratio:1;background:var(--card);border-radius:20px;overflow:hidden;display:grid;place-items:center;border:1px solid #e2d3b5}
-.gallery .main img{width:100%;height:100%;object-fit:cover}
-.thumbs{display:flex;gap:10px;margin-top:10px;overflow-x:auto}
-.thumbs img{width:68px;height:68px;object-fit:cover;border-radius:10px;border:2px solid transparent;cursor:pointer;background:var(--card)}
-.thumbs img.on{border-color:var(--acc)}
-h2{text-align:center;font-size:28px;margin:30px 0 16px}
-.feats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.f{background:var(--card);border:1px solid #e2d3b5;border-radius:16px;padding:20px}
-.f i{font-style:normal;font-size:34px}
-.f h3{color:var(--acc);margin:6px 0}
-.f p{color:var(--mut);font-size:15px}
-.desc{background:var(--card);border-radius:16px;padding:22px;color:var(--mut);white-space:pre-line}
-.trust{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:24px 0}
-.trust div{background:var(--card);padding:8px 16px;border-radius:30px;font-size:14px}
-form{background:var(--card);border:2px solid var(--acc);border-radius:20px;padding:24px;max-width:520px;margin:auto}
-label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
-input,select{width:100%;padding:13px;border-radius:10px;border:1px solid #d6c4a0;background:#fff;color:var(--txt);font-family:inherit;font-size:16px}
-form .btn{width:100%;margin-top:18px;animation:none}
-.sum{margin-top:12px;text-align:center;font-weight:700}
-.ok{display:none;text-align:center;padding:30px;font-size:20px;color:var(--acc2)}
-footer{text-align:center;color:var(--mut);font-size:13px;padding:30px 0 90px}
-.sticky{position:fixed;inset:auto 0 0 0;background:#f5ecdcee;padding:10px;text-align:center;z-index:9;border-top:1px solid #e2d3b5}
-.sticky .btn{padding:10px 26px;font-size:16px}
-</style>
-</head>
-<body>
-<div class="wrap">
- <div class="top"><div class="logo">⚡ VoltaTri</div><button class="lang" id="lang">Français</button></div>
-
- <section class="hero">
-  <div>
-   <span class="badge" data-t="badge"></span>
-   <h1 data-t="title"></h1>
-   <p class="sub" data-t="sub"></p>
-   <div class="price"><span id="price"></span><s id="old"></s></div>
-   <a href="#order" class="btn" data-t="cta"></a>
-  </div>
-  <div class="gallery">
-   <div class="main"><img id="big" alt=""></div>
-   <div class="thumbs" id="thumbs"></div>
-  </div>
- </section>
-
- <h2 data-t="whyH"></h2>
- <section class="feats">
-  <div class="f"><i>🔌</i><h3 data-t="f1h"></h3><p data-t="f1p"></p></div>
-  <div class="f"><i>📱</i><h3 data-t="f2h"></h3><p data-t="f2p"></p></div>
-  <div class="f"><i>🔗</i><h3 data-t="f3h"></h3><p data-t="f3p"></p></div>
- </section>
-
- <h2 data-t="descH"></h2>
- <div class="desc" id="desc"></div>
-
- <div class="trust">
-  <div data-t="t1"></div><div data-t="t2"></div><div data-t="t3"></div><div data-t="t4"></div>
- </div>
-
- <h2 id="order" data-t="orderH"></h2>
- <form id="form">
-  <label data-t="lName"></label><input name="name" required>
-  <label data-t="lPhone"></label><input name="phone" type="tel" required pattern="[0-9+ ]{9,15}">
-  <label data-t="lWilaya"></label><input name="wilaya" required>
-  <label data-t="lAddr"></label><input name="address" required>
-  <label data-t="lDelivery"></label><select name="delivery" id="dlv"></select>
-  <label data-t="lQty"></label>
-  <select name="qty" id="qty"><option>1</option><option>2</option><option>3</option></select>
-  <div class="sum"><span data-t="total"></span> <span id="tot"></span></div>
-  <button class="btn" data-t="submit"></button>
- </form>
- <div class="ok" id="ok"></div>
- <footer data-t="foot" style="padding-bottom:8px"></footer>
- <div style="text-align:center;padding-bottom:90px"><a href="admin.html" style="color:var(--mut);font-size:12px;opacity:.6;text-decoration:none">Admin</a></div>
+body{font-family:Arial,sans-serif;background:#f5ecdc;color:#2b2a33;margin:0;padding:16px}
+input,select,button{padding:10px;border-radius:8px;border:1px solid #d6c4a0;font-size:15px}
+button{background:#e8890c;color:#fff;border:0;font-weight:bold;cursor:pointer}
+#login{max-width:320px;margin:60px auto;display:grid;gap:10px}
+#app{display:none}.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.w{overflow-x:auto}table{border-collapse:collapse;width:100%;background:#fffaf0;font-size:14px}
+th{background:#e8890c;color:#fff}td,th{padding:8px;border-bottom:1px solid #e2d3b5;text-align:start;white-space:nowrap}
+.Confirmed{background:#c6efce}.Waiting{background:#ffeb9c}.False\ order{background:#ffc7ce}.On\ check{background:#bdd7ee}.Double\ order{background:#e4c8f0}
+</style></head><body>
+<div id="login"><h2>Admin</h2><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Mot de passe"><button id="go">Connexion</button><small id="err"></small></div>
+<div id="app">
+ <div class="bar"><b id="cnt"></b><select id="flt"><option value="">Tous</option><option>Confirmed</option><option>Waiting</option><option>False order</option><option>On check</option><option>Double order</option></select><button id="rf">Actualiser</button><button id="out">Déconnexion</button></div>
+ <div class="w"><table><thead><tr><th>Date</th><th>Nom</th><th>Téléphone</th><th>Wilaya</th><th>Adresse</th><th>Qté</th><th>Livraison</th><th>Prix liv.</th><th>Total</th><th>Statut</th></tr></thead><tbody id="rows"></tbody></table></div>
 </div>
-<div class="sticky"><a href="#order" class="btn" data-t="cta"></a></div>
-
 <script>
-/* ================= ✏️ MODIFIEZ ICI / عدّل هنا ================= */
-const CONFIG = {
-  // Vos photos : mettez les chemins/URLs (ex: "img/1.jpg") — ضع روابط أو مسارات صورك
-  images: ["img/1.jpg","img/2.jpg","img/3.jpg","img/4.jpg"],
-  price: 3500, oldPrice: 4900, currency: {ar:"دج", fr:"DA"},
-  whatsapp: "213XXXXXXXXX",          // votre numéro (sans +) — رقمك بدون +
-  supabaseUrl: "https://uuqrprzkinlkxovzfjsm.supabase.co",                    // ex: https://xxxx.supabase.co
-  supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1cXJwcnpraW5sa3hvdnpmanNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMDA0MTMsImV4cCI6MjExMDg3NjQxM30.fILi0KaRknHN7EQnV2Ucool6rvgBfd6d5v-pO899Als",                    // clé "anon public" — مفتاح anon public
-  delivery: [                         // Types & prix de livraison — أنواع وأسعار التوصيل
-    {ar:"توصيل للمنزل", fr:"Livraison à domicile", price:600},
-    {ar:"استلام من المكتب", fr:"Point relais (Stop desk)", price:400}
-  ],
-  webhook: "",                        // optionnel: Google Sheets / Make / Zapier URL
-  metaPixelId: ""                     // optionnel: ID du Pixel Facebook
-};
-const TXT = {
- ar:{badge:"عرض محدود 🔥",title:'مأخذ كهربائي <span>3 في 1</span> ذكي',sub:"مخرج USB + Type-C + حامل هاتف + كابل Type-C طويل. اشحن وشاهد هاتفك في نفس الوقت!",cta:"اطلب الآن – الدفع عند الاستلام",
-  whyH:"لماذا ستحبه؟",f1h:"مخارج شحن متعددة",f1p:"USB و Type-C لشحن جهازين معاً بسرعة وأمان.",f2h:"حامل هاتف مدمج",f2p:"شاهد الفيديوهات وأنت تشحن دون أن يسقط هاتفك.",f3h:"كابل Type-C طويل",f3p:"وصول مريح من أي زاوية في الغرفة.",
-  descH:"وصف المنتج",desc:"اكتب هنا وصف منتجك بالعربية…\n• المواصفات\n• القدرة\n• محتوى العلبة",
-  t1:"🚚 التوصيل لـ 58 ولاية",t2:"💵 الدفع عند الاستلام",t3:"🛡️ ضمان الجودة",t4:"↩️ إمكانية الاستبدال",
-  orderH:"اطلب الآن",lName:"الاسم الكامل",lPhone:"رقم الهاتف",lWilaya:"الولاية",lAddr:"العنوان",lDelivery:"نوع التوصيل",lQty:"الكمية",total:"المجموع:",submit:"تأكيد الطلب ✅",
-  ok:"شكراً لك! سنتصل بك قريباً لتأكيد طلبك 📞",foot:"© جميع الحقوق محفوظة"},
- fr:{badge:"Offre limitée 🔥",title:'Prise électrique <span>3 en 1</span> intelligente',sub:"Sortie USB + Type-C + support téléphone + long câble Type-C. Chargez et regardez en même temps !",cta:"Commander – Paiement à la livraison",
-  whyH:"Pourquoi l'adopter ?",f1h:"Multi-ports de charge",f1p:"USB et Type-C pour charger deux appareils rapidement et en sécurité.",f2h:"Support téléphone intégré",f2p:"Regardez vos vidéos pendant la charge sans que le téléphone tombe.",f3h:"Long câble Type-C",f3p:"Un confort total, depuis n'importe quel coin de la pièce.",
-  descH:"Description du produit",desc:"Écrivez ici la description de votre produit en français…\n• Caractéristiques\n• Puissance\n• Contenu du coffret",
-  t1:"🚚 Livraison 58 wilayas",t2:"💵 Paiement à la livraison",t3:"🛡️ Qualité garantie",t4:"↩️ Échange possible",
-  orderH:"Commander maintenant",lName:"Nom complet",lPhone:"Téléphone",lWilaya:"Wilaya",lAddr:"Adresse",lDelivery:"Type de livraison",lQty:"Quantité",total:"Total :",submit:"Confirmer la commande ✅",
-  ok:"Merci ! Nous vous appellerons bientôt pour confirmer 📞",foot:"© Tous droits réservés"}
-};
-let L="ar";
+const SUPABASE_URL="https://uuqrprzkinlkxovzfjsm.supabase.co", SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1cXJwcnpraW5sa3hvdnpmanNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMDA0MTMsImV4cCI6MjExMDg3NjQxM30.fILi0KaRknHN7EQnV2Ucool6rvgBfd6d5v-pO899Als";   // mêmes valeurs que index.html
 const $=s=>document.querySelector(s);
-function render(){
-  const t=TXT[L],c=CONFIG.currency[L];
-  document.documentElement.lang=L;document.documentElement.dir=L==="ar"?"rtl":"ltr";
-  document.querySelectorAll("[data-t]").forEach(e=>{const v=t[e.dataset.t];if(v!==undefined)e.innerHTML=v});
-  $("#desc").textContent=t.desc;$("#ok").textContent=t.ok;
-  $("#price").textContent=CONFIG.price+" "+c;$("#old").textContent=CONFIG.oldPrice+" "+c;
-  $("#lang").textContent=L==="ar"?"Français":"العربية";
-  const dl=$("#dlv"),k=dl.selectedIndex<0?0:dl.selectedIndex;
-  dl.innerHTML=CONFIG.delivery.map(o=>`<option>${o[L]} — ${o.price} ${c}</option>`).join("");dl.selectedIndex=k;
-  total();
+if(!SUPABASE_URL||!SUPABASE_KEY){$("#err").textContent="⚠️ SUPABASE_URL / SUPABASE_KEY manquants dans admin.html";throw new Error("missing keys")}
+if(!window.supabase){$("#err").textContent="⚠️ Bibliothèque Supabase non chargée (vérifiez la connexion)";throw new Error("lib")}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const ST=["Confirmed","Waiting","False order","On check","Double order"];
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function load(){
+  let q=sb.from("orders").select("*").order("created_at",{ascending:false}).limit(500);
+  if($("#flt").value)q=q.eq("status",$("#flt").value);
+  const {data,error}=await q;if(error){alert(error.message);return}
+  $("#cnt").textContent=data.length+" commandes";
+  $("#rows").innerHTML=data.map(o=>`<tr><td>${new Date(o.created_at).toLocaleString("fr-DZ")}</td><td>${esc(o.name)}</td><td><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></td><td>${esc(o.wilaya)}</td><td>${esc(o.address)}</td><td>${o.qty}</td><td>${esc(o.delivery)}</td><td>${o.delivery_price}</td><td>${o.total}</td>
+  <td><select class="${o.status}" data-id="${o.id}">${ST.map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("");
 }
-function calc(){return CONFIG.price*$("#qty").value+CONFIG.delivery[$("#dlv").selectedIndex].price}
-function total(){$("#tot").textContent=calc()+" "+CONFIG.currency[L]}
-$("#dlv").onchange=total;
-$("#qty").onchange=total;
-$("#lang").onclick=()=>{L=L==="ar"?"fr":"ar";render()};
-// Galerie
-const big=$("#big"),th=$("#thumbs");
-CONFIG.images.forEach((src,i)=>{const im=new Image();im.src=src;im.alt="";if(!i)im.className="on";
-  im.onclick=()=>{big.src=src;[...th.children].forEach(x=>x.classList.remove("on"));im.classList.add("on")};th.appendChild(im)});
-big.src=CONFIG.images[0];
-// Commande
-$("#form").onsubmit=async e=>{
-  e.preventDefault();
-  const f=Object.fromEntries(new FormData(e.target)),o=CONFIG.delivery[$("#dlv").selectedIndex];
-  const d={name:f.name,phone:f.phone,wilaya:f.wilaya,address:f.address,qty:+f.qty,
-           delivery:o.fr,delivery_price:o.price,total:calc()};
-  const btn=e.target.querySelector("button");btn.disabled=true;
-  try{
-    if(CONFIG.supabaseUrl){
-      const r=await fetch(CONFIG.supabaseUrl+"/rest/v1/orders",{method:"POST",
-        headers:{apikey:CONFIG.supabaseKey,Authorization:"Bearer "+CONFIG.supabaseKey,"Content-Type":"application/json",Prefer:"return=minimal"},
-        body:JSON.stringify(d)});
-      if(!r.ok)throw new Error(await r.text());
-    }
-  }catch(err){btn.disabled=false;alert(L==="ar"?"حدث خطأ، حاول مرة أخرى":"Une erreur est survenue, réessayez.");console.error(err);return}
-  if(window.fbq)fbq("track","Lead");
-  if(CONFIG.webhook)fetch(CONFIG.webhook,{method:"POST",mode:"no-cors",body:JSON.stringify(d)}).catch(()=>{});
-  if(CONFIG.whatsapp&&!CONFIG.whatsapp.includes("X")){
-    const m=`Nouvelle commande / طلب جديد\n${d.name}\n${d.phone}\n${d.wilaya} - ${d.address}\n${d.delivery}\nQty: ${d.qty}\nTotal: ${d.total}`;
-    window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(m),"_blank");
-  }
-  e.target.style.display="none";$("#ok").style.display="block";
-};
-// Pixel Facebook
-if(CONFIG.metaPixelId){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src='https://connect.facebook.net/en_US/fbevents.js';s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script');fbq('init',CONFIG.metaPixelId);fbq('track','PageView')}
-render();
-</script>
-</body>
-</html>
+$("#rows").onchange=async e=>{const s=e.target;const {error}=await sb.from("orders").update({status:s.value}).eq("id",s.dataset.id);if(error)alert(error.message);else s.className=s.value};
+async function show(){const {data}=await sb.auth.getSession();const ok=!!data.session;$("#login").style.display=ok?"none":"grid";$("#app").style.display=ok?"block":"none";if(ok)load()}
+$("#go").onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#em").value,password:$("#pw").value});if(error)$("#err").textContent=error.message;else show()};
+$("#out").onclick=async()=>{await sb.auth.signOut();show()};$("#rf").onclick=load;$("#flt").onchange=load;show();
+</script></body></html>
