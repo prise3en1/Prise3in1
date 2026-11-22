@@ -41,7 +41,7 @@ form{background:var(--card);border:2px solid var(--acc);border-radius:20px;paddi
 label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
 input,select{width:100%;padding:13px;border-radius:10px;border:1px solid #d6c4a0;background:#fff;color:var(--txt);font-family:inherit;font-size:16px}
 form .btn{width:100%;margin-top:18px;animation:none}
-.sum{margin-top:12px;text-align:center;font-weight:700}
+.sum{margin-top:14px;border-top:1px dashed #d6c4a0;padding-top:10px}.sum div{display:flex;justify-content:space-between;padding:3px 0}.sum .gt{font-weight:900;font-size:19px;color:var(--acc);border-top:1px solid #e2d3b5;margin-top:4px;padding-top:6px}
 .ok{display:none;text-align:center;padding:30px;font-size:20px;color:var(--acc2)}
 footer{text-align:center;color:var(--mut);font-size:13px;padding:30px 0 90px}
 .sticky{position:fixed;inset:auto 0 0 0;background:#f5ecdcee;padding:10px;text-align:center;z-index:9;border-top:1px solid #e2d3b5}
@@ -89,7 +89,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:30px 0 90px}
   <label data-t="lDelivery"></label><select name="delivery" id="dlv"></select>
   <label data-t="lQty"></label>
   <select name="qty" id="qty"><option>1</option><option>2</option><option>3</option></select>
-  <div class="sum"><span data-t="total"></span> <span id="tot"></span></div>
+  <div class="sum"><div><span data-t="pProd"></span><b id="pp"></b></div><div><span data-t="pShip"></span><b id="sh"></b></div><div class="gt"><span data-t="total"></span><span id="tot"></span></div></div>
   <button class="btn" data-t="submit"></button>
  </form>
  <div class="ok" id="ok"></div>
@@ -119,13 +119,13 @@ const TXT = {
   whyH:"لماذا ستحبه؟",f1h:"مخارج شحن متعددة",f1p:"USB و Type-C لشحن جهازين معاً بسرعة وأمان.",f2h:"حامل هاتف مدمج",f2p:"شاهد الفيديوهات وأنت تشحن دون أن يسقط هاتفك.",f3h:"كابل Type-C طويل",f3p:"وصول مريح من أي زاوية في الغرفة.",
   descH:"وصف المنتج",desc:"اكتب هنا وصف منتجك بالعربية…\n• المواصفات\n• القدرة\n• محتوى العلبة",
   t1:"🚚 التوصيل لـ 58 ولاية",t2:"💵 الدفع عند الاستلام",t3:"🛡️ ضمان الجودة",t4:"↩️ إمكانية الاستبدال",
-  orderH:"اطلب الآن",lName:"الاسم الكامل",lPhone:"رقم الهاتف",lWilaya:"الولاية",lAddr:"العنوان",lDelivery:"نوع التوصيل",lQty:"الكمية",total:"المجموع:",submit:"تأكيد الطلب ✅",
+  orderH:"اطلب الآن",lName:"الاسم الكامل",lPhone:"رقم الهاتف",lWilaya:"الولاية",lAddr:"العنوان",lDelivery:"نوع التوصيل",lQty:"الكمية",pProd:"سعر المنتج:",pShip:"سعر التوصيل:",total:"المجموع الكلي:",submit:"تأكيد الطلب ✅",
   ok:"شكراً لك! سنتصل بك قريباً لتأكيد طلبك 📞",foot:"© جميع الحقوق محفوظة"},
  fr:{badge:"Offre limitée 🔥",title:'Prise électrique <span>3 en 1</span> intelligente',sub:"Sortie USB + Type-C + support téléphone + long câble Type-C. Chargez et regardez en même temps !",cta:"Commander – Paiement à la livraison",
   whyH:"Pourquoi l'adopter ?",f1h:"Multi-ports de charge",f1p:"USB et Type-C pour charger deux appareils rapidement et en sécurité.",f2h:"Support téléphone intégré",f2p:"Regardez vos vidéos pendant la charge sans que le téléphone tombe.",f3h:"Long câble Type-C",f3p:"Un confort total, depuis n'importe quel coin de la pièce.",
   descH:"Description du produit",desc:"Écrivez ici la description de votre produit en français…\n• Caractéristiques\n• Puissance\n• Contenu du coffret",
   t1:"🚚 Livraison 58 wilayas",t2:"💵 Paiement à la livraison",t3:"🛡️ Qualité garantie",t4:"↩️ Échange possible",
-  orderH:"Commander maintenant",lName:"Nom complet",lPhone:"Téléphone",lWilaya:"Wilaya",lAddr:"Adresse",lDelivery:"Type de livraison",lQty:"Quantité",total:"Total :",submit:"Confirmer la commande ✅",
+  orderH:"Commander maintenant",lName:"Nom complet",lPhone:"Téléphone",lWilaya:"Wilaya",lAddr:"Adresse",lDelivery:"Type de livraison",lQty:"Quantité",pProd:"Prix du produit :",pShip:"Frais de livraison :",total:"Total à payer :",submit:"Confirmer la commande ✅",
   ok:"Merci ! Nous vous appellerons bientôt pour confirmer 📞",foot:"© Tous droits réservés"}
 };
 let L="ar";
@@ -147,7 +147,7 @@ function render(){
   total();
 }
 function calc(){return CONFIG.price*$("#qty").value+dp()}
-function total(){$("#tot").textContent=calc()+" "+CONFIG.currency[L]}
+function total(){const c=" "+CONFIG.currency[L];$("#pp").textContent=CONFIG.price*$("#qty").value+c;$("#sh").textContent=dp()?dp()+c:"—";$("#tot").textContent=calc()+c}
 $("#dlv").onchange=total;$("#wil").onchange=render;
 $("#qty").onchange=total;
 $("#lang").onclick=()=>{L=L==="ar"?"fr":"ar";render()};
